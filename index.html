@@ -1,134 +1,58 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI福祉相談・倫理判断</title>
-  <style>
-    body {
-      background: #fff;
-      font-family: sans-serif;
-      color: #000;
-      margin: 0;
-      padding: 1em;
-    }
-    h2, h3 {
-      margin-top: 1em;
-      color: #222;
-    }
-    #chatbox {
-      border: 1px solid #ccc;
-      padding: 1em;
-      height: 300px;
-      overflow-y: auto;
-      background: #f9f9f9;
-      border-radius: 10px;
-    }
-    .msg-user {
-      color: #0b6cff;
-      font-weight: bold;
-      margin: 0.5em 0;
-    }
-    .msg-ai {
-      color: #333;
-      margin: 0.5em 0;
-    }
-    textarea, button {
-      margin-top: 1em;
-      width: 100%;
-      font-size: 1em;
-      padding: 0.5em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-    button {
-      background: #0b6cff;
-      color: white;
-      border: none;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #005fcc;
-    }
-    #ethicsOutput {
-      background: #f1f1f1;
-      padding: 0.5em;
-      border-radius: 6px;
-    }
-    @media screen and (max-width: 600px) {
-      #chatbox {
-        height: 200px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>みんなの居場所おあがり（誰でも食堂） - 予定・実施報告・収支報告</title>
+    <style>
+        body{font-family:Arial,sans-serif;margin:0;padding:20px;text-align:center}
+        #header,#main,#footer{max-width:600px;margin:0 auto;background:#fff;padding:20px;border-radius:10px;text-align:left}
+        h1{color:#c71585;font-size:24px}
+        h2{color:#c71585;font-size:18px;border-bottom:1px solid #ffe4e1}
+        h3{color:#ff69b4;font-size:16px}
+        p{font-size:14px;color:#333}
+        .button{background:#ff69b4;color:#fff;padding:10px;border:none;border-radius:10px;cursor:pointer}
+        .button:hover{background:#ff4f9a}
+        ul{list-style:none;padding:0}
+        li{margin:10px 0}
+    </style>
 </head>
 <body>
-  <h2>AI福祉相談窓口</h2>
+    <div id="header">
+        <h1>みんなの居場所おあがり（誰でも食堂）</h1>
+        <p>地域住民が集う食事と交流の場</p>
+        <a href="index.html" class="button">トップページに戻る</a>
+    </div>
+    <div id="main">
+        <h2>予定</h2>
+        <ul>
+            <li>開催日は運営側で決定し、事前に告知します。アレルギー対応可。メニューは当日発表。</li>
+        </ul>
 
-  <div id="chatbox"></div>
-  <textarea id="userInput" placeholder="相談内容を入力してください..."></textarea>
-  <button onclick="sendMessage()">送信</button>
+        <h2>実施報告</h2>
+        <p>最新の実施報告は、開催後運営側で更新されます。申請内容は <a href="mailto:cvwjapan@gmail.com">cvwjapan@gmail.com</a> に送信されています。</p>
+        <ul>
+            <li>（実施報告は運営側で追記してください。例: 開催日、参加人数、メニューなど）</li>
+        </ul>
 
-  <h3>倫理判断:</h3>
-  <div id="ethicsOutput">---</div>
-
-  <h3>支援記録:</h3>
-  <textarea id="logOutput" readonly rows="6"></textarea>
-
-  <script>
-    async function sendMessage() {
-      const userText = document.getElementById("userInput").value.trim();
-      if (!userText) return;
-
-      const chatbox = document.getElementById("chatbox");
-      chatbox.innerHTML += `<div class='msg-user'>あなた: ${userText}</div>`;
-
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer YOUR_API_KEY",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "gpt-4",
-          messages: [
-            { role: "system", content: "あなたは福祉専門の相談員です。児童福祉と倫理に関して適切な対応を行ってください。" },
-            { role: "user", content: userText }
-          ]
-        })
-      });
-
-      const data = await response.json();
-      const reply = data.choices[0].message.content;
-      chatbox.innerHTML += `<div class='msg-ai'>AI: ${reply}</div>`;
-
-      // 独自倫理判断ロジック（模擬）
-      const risks = [
-        { keyword: "叩かれた", level: "高", advice: "虐待の可能性があるため、直ちに児童相談所へ相談してください。" },
-        { keyword: "家に帰りたくない", level: "中", advice: "家庭環境に不安がある可能性。見守りが必要です。" },
-        { keyword: "食べ物がない", level: "中", advice: "経済的困窮の可能性。支援機関との連携が望ましいです。" },
-        { keyword: "先生に怒鳴られた", level: "低", advice: "学校との対話による解決が期待されます。" }
-      ];
-
-      let ethicsResult = "問題のある表現は検出されませんでした。";
-      for (let r of risks) {
-        if (userText.includes(r.keyword)) {
-          ethicsResult = `【リスクレベル: ${r.level}】${r.advice}`;
-          break;
-        }
-      }
-
-      document.getElementById("ethicsOutput").innerText = ethicsResult;
-
-      // 支援記録生成
-      const currentLog = document.getElementById("logOutput").value;
-      document.getElementById("logOutput").value =
-        currentLog + "\n[相談者] " + userText + "\n[AI対応] " + reply + "\n[倫理判断] " + ethicsResult + "\n";
-
-      document.getElementById("userInput").value = "";
-      chatbox.scrollTop = chatbox.scrollHeight;
-    }
-  </script>
+        <h2>収支報告</h2>
+        <h3>収入</h3>
+        <ul>
+            <li>寄付: トップページの寄付ボタン（500円/1,000円）で受付中。</li>
+            <li>プレミアム会員: 月額500円（トップページで登録可）。</li>
+            <li><strong>合計収入:</strong> 運営側で集計してください。</li>
+        </ul>
+        <h3>支出</h3>
+        <ul>
+            <li>食材費: 参加人数に応じて変動（運営側で集計）。</li>
+            <li>会場費: 公民館利用料など（運営側で集計）。</li>
+            <li><strong>合計支出:</strong> 運営側で集計してください。</li>
+        </ul>
+        <h3>収支</h3>
+        <p><strong>収支:</strong> 運営側で集計してください。</p>
+    </div>
+    <div id="footer">
+        <p>お問い合わせ: <a href="mailto:cvwjapan@gmail.com">cvwjapan@gmail.com</a></p>
+    </div>
 </body>
 </html>
